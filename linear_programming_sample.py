@@ -1,6 +1,14 @@
 import cplex
 
 # ============================================================
+# This file gives us a sample to use Cplex Python API to
+# establish a Linear Programming model and then solve it.
+# The Linear Programming problem displayed bellow is as:
+#                  min z = cx
+#    subject to:      Ax = b
+# ============================================================
+
+# ============================================================
 # Input all the data and parameters here
 num_decision_var = 3
 num_constraints = 3
@@ -8,50 +16,53 @@ num_constraints = 3
 A = [
     [1.0, -2.0, 1.0],
     [-4.0, 1.0, 2.0],
-    [-2.0, 0, 1.0]
+    [-2.0, 0, 1.0],
 ]
 b = [11.0, 3.0, 1.0]
 c = [-3.0, 1.0, 1.0]
 
-constraint_type = ["L", "G", "E"]
+constraint_type = ["L", "G", "E"] # Less, Greater, Equal
 # ============================================================
 
 # Examine if the vectors and matrix meet the requirement
 if len(A) != num_constraints:
-    print("Please check the Matrix A!")
-    exit()
+    raise TypeError("Please check the Matrix A!")
 
 for sub_A in A:
     if len(sub_A) != num_decision_var:
-        print("Please check the Matrix A!")
-        exit()
+        raise TypeError("Please check the Matrix A!")
 
 if len(b) != num_constraints:
-    print("Please check the Vector b!")
-    exit()
+    raise TypeError("Please check the Vector b!")
 
 if len(c) != num_decision_var:
-    print("Please check the Vector c!")
-    exit()
+    raise TypeError("Please check the Vector c!")
+
+if len(constraint_type) != num_constraints:
+    raise TypeError("Please check the Vector constraint_type!")
 
 # Establish the Linear Programming Model
 myProblem = cplex.Cplex()
 
-# Add the decision variables and 
+# Add the decision variables and set their lower bound and upper bound (if necessary)
 myProblem.variables.add(names= ["x"+str(i) for i in range(num_decision_var)])
+for i in range(num_decision_var):
+    myProblem.variables.set_lower_bounds(i, 0.0)
 
+# Add constraints
 for i in range(num_constraints):
     myProblem.linear_constraints.add(
-        lin_expr= [cplex.SparsePair(ind= ["x"+str(j) for j in range(num_decision_var)], val= A[i])],
+        lin_expr= [cplex.SparsePair(ind= [j for j in range(num_decision_var)], val= A[i])],
         rhs= [b[i]],
         names = ["c"+str(i)],
         senses = [constraint_type[i]]
     )
 
+# Add objective function and set its sense
 for i in range(num_decision_var):
-    myProblem.objective.set_linear([("x"+str(i), c[i])])
-
+    myProblem.objective.set_linear([(i, c[i])])
 myProblem.objective.set_sense(myProblem.objective.sense.minimize)
 
+# Solve the model and print the answer
 myProblem.solve()
 print(myProblem.solution.get_values())
