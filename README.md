@@ -8,4 +8,6 @@ In this project, you can see how to use Cplex Python API to solve common mathema
 
 2. Mixed Integer Linear Programming
 
+3. Gradient descent method used in unconstrained minimization
+
 New models coming soon...
