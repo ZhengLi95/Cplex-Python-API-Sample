@@ -38,30 +38,55 @@ def isConvergent(x, newX):
     else:
         return False
 
+def GoldenSectionMethod(func, x, direction, accuracy):
+
+    LB = 0
+    UB = 1
+    goldenPoint = 0.618
+
+    left = LB + (1 - goldenPoint) * (UB - LB)
+    right = LB + goldenPoint * (UB - LB)
+
+    while True:
+
+        leftX = []
+        rightX = []
+        for i in range(len(x)):
+            leftX.append(x[i] + direction[i] * left)
+        for i in range(len(x)):
+            rightX.append(x[i] + direction[i] * right)
+
+        val_left = func(leftX)
+        val_right = func(rightX)
+        if val_left <= val_right:
+            UB = right
+        else:
+            LB = left
+
+        if abs(LB - UB) < accuracy:
+            opt_theta = (right + left)/2.0
+            return opt_theta
+        else:
+            if val_left <= val_right:
+                right = left
+                left = LB + (1 - goldenPoint) * (UB - LB)
+            else:
+                left = right
+                right = LB + goldenPoint*(UB - LB)
+
 def gradientDescentMethod(func, initialX, displayDetail = False):
     counter = 0
     while True:
         if displayDetail == True:
             print("ITERATION TIMES: " + str(counter))
-        grad = minusGrad(func, initialX)
+        minusgrad = minusGrad(func, initialX)
         if displayDetail == True:
             print("GRADIENT AT POINT " + str(roundList(initialX, 4))
-                  + " IS " + str(roundList(grad, 4)))
-        alpha = 0
-        fmin = float("inf")
-        recorder = 0
-        while alpha <= 1:
-            bufferX = []
-            for i in range(len(initialX)):
-                bufferX.append(initialX[i] + alpha*grad[0])
-            f = func(bufferX)
-            alpha += 1e-4
-            if f <= fmin:
-                fmin = f
-                recorder = alpha
+                  + " IS " + str(roundList(minusgrad, 4)))
+        optAlpha = GoldenSectionMethod(func, initialX, minusgrad, accuracy= 1e-6)
         newX = []
         for i in range(len(initialX)):
-            newX.append(initialX[i] + recorder*grad[0])
+            newX.append(initialX[i] + optAlpha*minusgrad[i])
         if displayDetail == True:
             print("THE NEXT POINT IS: " + str(roundList(newX, 4)))
             print("======================================================================")
@@ -80,7 +105,7 @@ def gradientDescentMethod(func, initialX, displayDetail = False):
 
 # ===============================================
 def myFunc(x):
-    return 2*(x[0]-3)**2 + (x[1]-1.5)**2
+    return 2*(x[0]+2.3)**2 + (x[1]-1.5)**2
 
 initialX = [8, 5]
 
