@@ -10,14 +10,15 @@ def Grad(func, x, stepLength= 1e-4):
         leftDummyX[i] = x[i] - stepLength
         rigthDummyX = x.copy()
         rigthDummyX[i] = x[i] + stepLength
-        SubGrad = (func(rigthDummyX) - func(leftDummyX)) / (2 * stepLength)
 
-        grad[i] = SubGrad
+        grad[i] = (func(rigthDummyX) - func(leftDummyX)) / (2 * stepLength)
 
     return grad
 
 def isConvergent(x, newX, accuracy= 1e-4):
+
     difference = np.linalg.norm(x - newX)/np.linalg.norm(x)
+
     if difference <= accuracy:
         return True
     else:
@@ -34,10 +35,8 @@ def GoldenSectionMethod(func, x, direction, accuracy= 1e-6):
 
     while True:
 
-        leftX = x + direction * left
-        rightX = x + direction * right
-        val_left = func(leftX)
-        val_right = func(rightX)
+        val_left = func(x + direction * left)
+        val_right = func(x + direction * right)
 
         if val_left <= val_right:
             UB = right
@@ -45,7 +44,7 @@ def GoldenSectionMethod(func, x, direction, accuracy= 1e-6):
             LB = left
 
         if abs(LB - UB) < accuracy:
-            opt_theta = (right + left)/2.0
+            opt_theta = (right + left)/2
             return opt_theta
         else:
             if val_left <= val_right:
@@ -81,7 +80,7 @@ def gradientDescentMethod(func, initialX, displayDetail= False, decimal= 3, accu
             if displayDetail == True:
                 print("ITERATION BREAK! THE MINIMAL VALUE OBTAINED AT POINT: "
                       + str(initialX.round(decimal)))
-                print("THE MINIMAL VALUE OF FUNCTION IS: " + str(round(func(initialX), 4)))
+                print("THE MINIMAL VALUE OF FUNCTION IS: " + str(round(func(initialX), decimal)))
             return initialX
         else:
             initialX = newX.copy()

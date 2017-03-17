@@ -24,23 +24,6 @@ c = [-3.0, 1.0, 1.0]
 constraint_type = ["L", "G", "E"] # Less, Greater, Equal
 # ============================================================
 
-# Examine if the vectors and matrix meet the requirement
-if len(A) != num_constraints:
-    raise TypeError("Please check the Matrix A!")
-
-for sub_A in A:
-    if len(sub_A) != num_decision_var:
-        raise TypeError("Please check the Matrix A!")
-
-if len(b) != num_constraints:
-    raise TypeError("Please check the Vector b!")
-
-if len(c) != num_decision_var:
-    raise TypeError("Please check the Vector c!")
-
-if len(constraint_type) != num_constraints:
-    raise TypeError("Please check the Vector constraint_type!")
-
 # Establish the Linear Programming Model
 myProblem = cplex.Cplex()
 
