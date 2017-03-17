@@ -1,44 +1,29 @@
-def minusGrad(func, x):
+import numpy as np
 
-    grad = []
-    sigma = 1e-4
-    upsilon = 1e-1
+def Grad(func, x, stepLength= 1e-4):
 
-    for i in range(len(x)):
+    grad = np.zeros(x.size)
+
+    for i in range(x.size):
 
         leftDummyX = x.copy()
-        leftDummyX[i] = x[i] - sigma
-        leftSubGrad = (func(x) - func(leftDummyX))/sigma
-
+        leftDummyX[i] = x[i] - stepLength
         rigthDummyX = x.copy()
-        rigthDummyX[i] = x[i] + sigma
-        rightSubGrad = (func(rigthDummyX) - func(x))/sigma
+        rigthDummyX[i] = x[i] + stepLength
+        SubGrad = (func(rigthDummyX) - func(leftDummyX)) / (2 * stepLength)
 
-        if abs(leftSubGrad - rightSubGrad) > upsilon:
-            raise Exception("This function cannot obtain the gradient at point x!")
-        else:
-            grad.append(round(-(leftSubGrad + rightSubGrad)/2, 5))
+        grad[i] = SubGrad
 
     return grad
 
-def roundList(list, accuracy):
-    newList = []
-    for elem in list:
-        newList.append(round(elem, accuracy))
-    return newList
-
-def isConvergent(x, newX):
-    upsilon = 1e-4
-    diff = []
-    for i in range(len(x)):
-        diff.append(x[i] - newX[i])
-    relativeDiff = abs(sum(diff))/abs(sum(x))
-    if relativeDiff <= upsilon:
+def isConvergent(x, newX, accuracy= 1e-4):
+    difference = np.linalg.norm(x - newX)/np.linalg.norm(x)
+    if difference <= accuracy:
         return True
     else:
         return False
 
-def GoldenSectionMethod(func, x, direction, accuracy):
+def GoldenSectionMethod(func, x, direction, accuracy= 1e-6):
 
     LB = 0
     UB = 1
@@ -49,15 +34,11 @@ def GoldenSectionMethod(func, x, direction, accuracy):
 
     while True:
 
-        leftX = []
-        rightX = []
-        for i in range(len(x)):
-            leftX.append(x[i] + direction[i] * left)
-        for i in range(len(x)):
-            rightX.append(x[i] + direction[i] * right)
-
+        leftX = x + direction * left
+        rightX = x + direction * right
         val_left = func(leftX)
         val_right = func(rightX)
+
         if val_left <= val_right:
             UB = right
         else:
@@ -74,29 +55,33 @@ def GoldenSectionMethod(func, x, direction, accuracy):
                 left = right
                 right = LB + goldenPoint*(UB - LB)
 
-def gradientDescentMethod(func, initialX, displayDetail = False):
+def gradientDescentMethod(func, initialX, displayDetail= False, decimal= 3, accuracy= 1e-6):
+
     counter = 0
+
     while True:
+
         if displayDetail == True:
             print("ITERATION TIMES: " + str(counter))
-        minusgrad = minusGrad(func, initialX)
+
+        negativeGrad = - Grad(func, initialX)
+
         if displayDetail == True:
-            print("GRADIENT AT POINT " + str(roundList(initialX, 4))
-                  + " IS " + str(roundList(minusgrad, 4)))
-        optAlpha = GoldenSectionMethod(func, initialX, minusgrad, accuracy= 1e-6)
-        newX = []
-        for i in range(len(initialX)):
-            newX.append(initialX[i] + optAlpha*minusgrad[i])
+            print("NEG-GRADIENT AT POINT " + str(initialX.round(decimal))
+                  + " IS " + str(negativeGrad.round(decimal)))
+
+        optAlpha = GoldenSectionMethod(func, initialX, negativeGrad, accuracy)
+        newX = initialX + optAlpha * negativeGrad
+
         if displayDetail == True:
-            print("THE NEXT POINT IS: " + str(roundList(newX, 4)))
+            print("THE NEXT POINT IS: " + str(newX.round(decimal)))
             print("======================================================================")
+
         if isConvergent(initialX, newX):
-            for i in range(len(initialX)):
-                initialX[i] = round(initialX[i], 4)
             if displayDetail == True:
                 print("ITERATION BREAK! THE MINIMAL VALUE OBTAINED AT POINT: "
-                      + str(roundList(initialX, 4)))
-                print("THE MINIMAL VALUE OF FUNCTION IS: " + str(round(myFunc(initialX), 4)))
+                      + str(initialX.round(decimal)))
+                print("THE MINIMAL VALUE OF FUNCTION IS: " + str(round(func(initialX), 4)))
             return initialX
         else:
             initialX = newX.copy()
@@ -104,10 +89,11 @@ def gradientDescentMethod(func, initialX, displayDetail = False):
 
 
 # ===============================================
+
 def myFunc(x):
     return 2*(x[0]+2.3)**2 + (x[1]-1.5)**2
 
-initialX = [8, 5]
+initialX = np.array([8., 5.])
 
 optX = gradientDescentMethod(myFunc, initialX, displayDetail= True)
 
