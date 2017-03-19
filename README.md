@@ -12,4 +12,6 @@ In addition, I have wrote some fundamental algorithms which can be used in some 
 
 3. Gradient descent method used in unconstrained minimization
 
+4. Guarded Newton method used in unconstrained minimization
+
 New models are coming soon...
