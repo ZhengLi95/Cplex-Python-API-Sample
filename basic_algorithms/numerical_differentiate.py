@@ -15,59 +15,55 @@ def Grad(func, x, stepLength= 1e-4):
 
     return grad
 
-def Hessian(func, x, stepLength= 1e-4):
+def Hessian(func, x, stepLength= 1e-4, decimal = 4):
 
     hessian = np.zeros((x.size, x.size))
 
     for i in range(x.size):
         for j in range(x.size):
-            leftDummyX = x.copy()
-            leftDummyX[i] = x[i] - stepLength
-            rigthDummyX = x.copy()
-            rigthDummyX[i] = x[i] + stepLength
 
-def Test2(func, x, stepLength= 1e-3):
+            if i == j:
 
-    leftDummyX = x.copy()
-    leftDummyX[0] = x[0] - stepLength
-    rigthDummyX = x.copy()
-    rigthDummyX[0] = x[0] + stepLength
+                part1 = x.copy()
+                part1[i] = x[i] - stepLength
+                part2 = x.copy()
+                part2[i] = x[i] + stepLength
 
-    print(leftDummyX, rigthDummyX, x)
-    val = (func(leftDummyX) + func(rigthDummyX) - 2 * func(x))/(stepLength**2)
-    print(func(leftDummyX) + func(rigthDummyX) - 2 * func(x))
-    return val
+                hessian[i][j] = (func(part1) + func(part2) - 2 * func(x)) / (stepLength ** 2)
 
-def Test(func, x , stepLength= 1e-4):
+            else:
 
-    subx1 = x.copy()
-    subx1[0] = x[0] + stepLength
-    subx1[1] = x[1] + stepLength
+                part1 = x.copy()
+                part1[i] = x[i] + stepLength
+                part1[j] = x[j] + stepLength
 
-    subx2 = x.copy()
-    subx2[0] = x[0] - stepLength
-    subx2[1] = x[1] - stepLength
+                part2 = x.copy()
+                part2[i] = x[i] - stepLength
+                part2[j] = x[j] - stepLength
 
-    subx3 = x.copy()
-    subx3[0] = x[0] + stepLength
+                part3 = x.copy()
+                part3[i] = x[i] + stepLength
 
-    subx4 = x.copy()
-    subx4[0] = x[0] - stepLength
+                part4 = x.copy()
+                part4[i] = x[i] - stepLength
 
-    subx5 = x.copy()
-    subx5[1] = x[1] + stepLength
+                part5 = x.copy()
+                part5[j] = x[j] + stepLength
 
-    subx6 = x.copy()
-    subx6[1] = x[1] - stepLength
+                part6 = x.copy()
+                part6[j] = x[j] - stepLength
 
-    val = (func(subx1) + func(subx2) - func(subx3) - func(subx4) - func(subx5) - func(subx6) + 2*func(x))/(2*stepLength**2)
+                hessian[i][j] = (func(part1) + func(part2) - func(part3) - func(part4)
+                                 - func(part5) - func(part6) + 2 * func(x)) / (2 * stepLength ** 2)
 
-    return val
+    return hessian.round(decimal)
 
-def myFunc(x):
+# =====================================
 
-    return x[0] + x[0]*x[1]
-
-x = np.array([2., 5.])
-
-print(Test(myFunc, x))
+# def myFunc(x):
+#
+#     return x[0]*x[0]*x[0] + x[0]*x[1]
+#
+# x = np.array([4. , 5.], dtype= float)
+#
+# print(Hessian(myFunc, x))
