@@ -1,3 +1,0 @@
-from basic_algorithms import linear_search
-from basic_algorithms import check_convergence
-from basic_algorithms import numerical_differentiate
