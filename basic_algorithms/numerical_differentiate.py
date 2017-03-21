@@ -6,16 +6,16 @@ def Grad(func, x, stepLength= 1e-4):
 
     for i in range(x.size):
 
-        leftDummyX = x.copy()
-        leftDummyX[i] = x[i] - stepLength
-        rigthDummyX = x.copy()
-        rigthDummyX[i] = x[i] + stepLength
+        part1 = x.copy()
+        part1[i] = x[i] - stepLength
+        part2 = x.copy()
+        part2[i] = x[i] + stepLength
 
-        grad[i] = (func(rigthDummyX) - func(leftDummyX)) / (2 * stepLength)
+        grad[i] = (func(part2) - func(part1)) / (2 * stepLength)
 
     return grad
 
-def Hessian(func, x, stepLength= 1e-4, decimal = 4):
+def Hessian(func, x, stepLength= 1e-4):
 
     hessian = np.zeros((x.size, x.size))
 
@@ -56,14 +56,15 @@ def Hessian(func, x, stepLength= 1e-4, decimal = 4):
                 hessian[i][j] = (func(part1) + func(part2) - func(part3) - func(part4)
                                  - func(part5) - func(part6) + 2 * func(x)) / (2 * stepLength ** 2)
 
-    return hessian.round(decimal)
+    return hessian
 
-# =====================================
+def isPositiveDenifite(hessianMatrix):
 
-# def myFunc(x):
-#
-#     return x[0]*x[0]*x[0] + x[0]*x[1]
-#
-# x = np.array([4. , 5.], dtype= float)
-#
-# print(Hessian(myFunc, x))
+    eigenvalues = np.linalg.eig(hessianMatrix)[0]
+
+    for eigenvalue in eigenvalues:
+        if eigenvalue <= 0:
+            return  False
+
+    return True
+
